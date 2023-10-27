@@ -28,7 +28,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework.authtoken",
     "djoser",
+    "core.apps.CoreConfig",
     "recipes.apps.RecipesConfig",
 ]
 
@@ -122,4 +124,12 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
     ],
+}
+
+DJOSER = {
+    "LOGIN_FIELD": "email",
+    "SERIALIZERS": {
+        "user_create": "core.serializers.CustomUserCreateSerializer",
+        "user": "core.serializers.CustomUserSerializer",
+    },
 }

@@ -5,18 +5,18 @@ User = get_user_model()
 
 
 class Units(models.Model):
-    name = models.CharField()
+    name = models.TextField()
 
 
 class Ingredients(models.Model):
-    name = models.CharField()
+    name = models.TextField()
     unit = models.ForeignKey(
         Units, related_name="cats", on_delete=models.CASCADE
     )
 
 
 class Tags(models.Model):
-    name = models.CharField()
+    name = models.TextField()
     color_code = models.CharField(max_length=7)
     slug = models.SlugField(unique=True)
 
@@ -25,7 +25,7 @@ class Recipes(models.Model):
     author = models.ForeignKey(
         User, related_name="recipes", on_delete=models.CASCADE
     )
-    name = models.CharField()
+    name = models.TextField()
     image = models.ImageField(
         upload_to="recipes/images/", null=True, default=None
     )
