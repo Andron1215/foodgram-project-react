@@ -1,5 +1,6 @@
 import base64
 
+from core.serializers import CustomUserReadSerializer
 from django.core.files.base import ContentFile
 from rest_framework import serializers
 
@@ -10,26 +11,7 @@ from .models import (
     RecipesTags,
     Tags,
     Units,
-    User,
 )
-
-
-class UsersSerializer(serializers.ModelSerializer):
-    is_subscribed = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = [
-            "email",
-            "id",
-            "username",
-            "first_name",
-            "last_name",
-            "is_subscribed",
-        ]
-
-    def get_is_subscribed(self, obj):
-        return False
 
 
 class TagsSerializer(serializers.ModelSerializer):
@@ -89,7 +71,7 @@ class RecipesIngredientsWriteSerializer(serializers.ModelSerializer):
 
 class RecipesReadSerializer(serializers.ModelSerializer):
     tags = TagsSerializer(many=True)
-    author = UsersSerializer(read_only=True)
+    author = CustomUserReadSerializer(read_only=True)
     ingredients = RecipesIngredientsReadSerializer(
         source="recipe_ingredients", many=True
     )
