@@ -4,7 +4,6 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from .filterts import CustomSearchFilterIngredients, RecipesFilter
 from .models import Ingredients, Recipes, Tags
-from .pagination import CustomPageNumberPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     IngredientsSerializer,
@@ -18,12 +17,14 @@ class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    pagination_class = None
 
 
 class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    pagination_class = None
     filter_backends = [CustomSearchFilterIngredients]
     search_fields = ["^name"]
     # filter_backends = [DjangoFilterBackend]
@@ -33,7 +34,6 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipes.objects.all()
     permission_classes = [IsAuthorOrReadOnly]
-    pagination_class = CustomPageNumberPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipesFilter
 
