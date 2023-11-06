@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from recipes.models import Ingredients, Recipes, Tags
+from recipes.models import Favorites, Ingredients, Recipes, Tags
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (
@@ -16,6 +16,7 @@ from .filterts import CustomSearchFilterIngredients, RecipesFilter
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     CustomUserReadSerializer,
+    FavoritesSerializer,
     IngredientsSerializer,
     RecipesReadSerializer,
     RecipesWriteSerializer,
@@ -34,7 +35,7 @@ class CustomUserViewSet(UserViewSet):
     @action(
         ["post", "delete"], detail=True, permission_classes=[IsAuthenticated]
     )
-    def subscribe(self, request, id):
+    def subscribe(self, request, id=None):
         author = self.get_object()
         user = request.user
         serializer = SubscriptionsWriteSerializer(
@@ -63,12 +64,6 @@ class CustomUserViewSet(UserViewSet):
             pages, many=True, context={"request": request}
         )
         return self.get_paginated_response(serializer.data)
-
-
-class SubscriptionsViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Subscriptions.objects.all()
-    serializer_class = SubscriptionsReadSerializer
-    permission_classes = [IsAuthenticated]
 
 
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -102,3 +97,26 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    @action(
+        ["post", "delete"], detail=True, permission_classes=[IsAuthenticated]
+    )
+    def favorite(self, request, pk=None):
+        user = request.user
+        recipe = self.get_object()
+        serializer = FavoritesSerializer(
+            recipe, data=request.data, context={"request": request}
+        )
+        if serializer.is_valid():
+            if request.method == "POST":
+                Favorites.objects.create(user=user, recipe=recipe)
+                return Response(
+                    serializer.data, status=status.HTTP_201_CREATED
+                )
+            if request.method == "DELETE":
+                subscription = get_object_or_404(
+                    Favorites, user=user, recipe=recipe
+                )
+                subscription.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

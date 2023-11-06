@@ -71,7 +71,7 @@ class RecipesIngredients(models.Model):
         return f"{self.recipe} - {self.amount} {self.ingredient}"
 
 
-class Favorite(models.Model):
+class Favorites(models.Model):
     user = models.ForeignKey(
         User, related_name="favorites", on_delete=models.CASCADE
     )

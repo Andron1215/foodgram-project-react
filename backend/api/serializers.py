@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (
+    Favorites,
     Ingredients,
     Recipes,
     RecipesIngredients,
@@ -301,7 +302,7 @@ class RecipesWriteSerializer(serializers.ModelSerializer):
 
 
 class RecipesShortSerializer(serializers.ModelSerializer):
-    image = Base64ImageField()
+    image = Base64ImageField(read_only=True)
 
     class Meta:
         model = Recipes
@@ -311,3 +312,29 @@ class RecipesShortSerializer(serializers.ModelSerializer):
             "image",
             "cooking_time",
         ]
+        read_only_fields = [
+            "id",
+            "name",
+            "cooking_time",
+        ]
+
+
+class FavoritesSerializer(RecipesShortSerializer):
+    class Meta(RecipesShortSerializer.Meta):
+        fields = [*RecipesShortSerializer.Meta.fields]
+
+    def validate(self, data):
+        request = self.context.get("request")
+        user = request.user
+        recipe = self.instance
+        if request.method == "POST":
+            if Favorites.objects.filter(user=user, recipe=recipe).exists():
+                raise serializers.ValidationError(
+                    detail="Рецепт уже в избранном."
+                )
+        if request.method == "DELETE":
+            if not Favorites.objects.filter(user=user, recipe=recipe).exists():
+                raise serializers.ValidationError(
+                    detail="Рецепт нет в избранном."
+                )
+        return data
