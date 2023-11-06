@@ -1,11 +1,10 @@
 from django_filters import rest_framework as django_filters
 from django_filters.rest_framework import FilterSet
-from rest_framework import filters
-
-from .models import (
+from recipes.models import (
     Recipes,
     Tags,
 )
+from rest_framework import filters
 
 
 class CustomSearchFilterIngredients(filters.SearchFilter):

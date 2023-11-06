@@ -1,19 +1,8 @@
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
 from django.db import models
 
 User = get_user_model()
-
-
-class Subscriptions(models.Model):
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="subscribers"
-    )
-    subscriber = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="subscriptions"
-    )
-
-    def __str__(self):
-        return f"{self.subscriber} subscribed to {self.user}"
 
 
 class Tags(models.Model):
@@ -40,9 +29,6 @@ class Ingredients(models.Model):
 
     def __str__(self):
         return self.name
-
-
-from django.core.validators import MinValueValidator
 
 
 class Recipes(models.Model):

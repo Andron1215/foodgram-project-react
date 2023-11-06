@@ -31,8 +31,9 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "djoser",
     "django_filters",
-    "core.apps.CoreConfig",
+    "users.apps.UsersConfig",
     "recipes.apps.RecipesConfig",
+    "api.apps.ApiConfig",
 ]
 
 MIDDLEWARE = [
@@ -76,7 +77,7 @@ DATABASES = {
     }
 }
 
-AUTH_USER_MODEL = "core.User"
+AUTH_USER_MODEL = "users.User"
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -130,16 +131,16 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
-    "DEFAULT_PAGINATION_CLASS": "core.pagination.CustomPageNumberPagination",
+    "DEFAULT_PAGINATION_CLASS": "api.pagination.CustomPageNumberPagination",
     "PAGE_SIZE": 6,
 }
 
 DJOSER = {
     "LOGIN_FIELD": "email",
     "SERIALIZERS": {
-        "user_create": "core.serializers.CustomUserWriteSerializer",
-        "user": "core.serializers.CustomUserReadSerializer",
-        "current_user": "core.serializers.CustomUserReadSerializer",
+        "user_create": "api.serializers.CustomUserWriteSerializer",
+        "user": "api.serializers.CustomUserReadSerializer",
+        "current_user": "api.serializers.CustomUserReadSerializer",
     },
     "PERMISSIONS": {
         "user": ["rest_framework.permissions.IsAuthenticated"],
