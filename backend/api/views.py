@@ -1,8 +1,17 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Sum
+from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from recipes.models import Favorites, Ingredients, Recipes, Tags
+from recipes.models import (
+    Favorites,
+    Ingredients,
+    Recipes,
+    RecipesIngredients,
+    ShoppingCart,
+    Tags,
+)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (
@@ -12,7 +21,7 @@ from rest_framework.permissions import (
 from rest_framework.response import Response
 from users.models import Subscriptions
 
-from .filterts import CustomSearchFilterIngredients, RecipesFilter
+from .filterts import IngredientFilter, RecipesFilter
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     CustomUserReadSerializer,
@@ -20,6 +29,7 @@ from .serializers import (
     IngredientsSerializer,
     RecipesReadSerializer,
     RecipesWriteSerializer,
+    ShoppingCartSerializer,
     SubscriptionsReadSerializer,
     SubscriptionsWriteSerializer,
     TagsSerializer,
@@ -78,10 +88,8 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientsSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     pagination_class = None
-    filter_backends = [CustomSearchFilterIngredients]
-    search_fields = ["^name"]
-    # filter_backends = [DjangoFilterBackend]
-    # filterset_fields = {"name": ["startswith"]}
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = IngredientFilter
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
@@ -114,9 +122,60 @@ class RecipesViewSet(viewsets.ModelViewSet):
                     serializer.data, status=status.HTTP_201_CREATED
                 )
             if request.method == "DELETE":
-                subscription = get_object_or_404(
+                favorite = get_object_or_404(
                     Favorites, user=user, recipe=recipe
                 )
-                subscription.delete()
+                favorite.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(
+        ["post", "delete"], detail=True, permission_classes=[IsAuthenticated]
+    )
+    def shopping_cart(self, request, pk=None):
+        user = request.user
+        recipe = self.get_object()
+        serializer = ShoppingCartSerializer(
+            recipe, data=request.data, context={"request": request}
+        )
+        if serializer.is_valid():
+            if request.method == "POST":
+                ShoppingCart.objects.create(user=user, recipe=recipe)
+                return Response(
+                    serializer.data, status=status.HTTP_201_CREATED
+                )
+            if request.method == "DELETE":
+                shopping_cart_recipe = get_object_or_404(
+                    ShoppingCart, user=user, recipe=recipe
+                )
+                shopping_cart_recipe.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, permission_classes=[IsAuthenticated])
+    def download_shopping_cart(self, request):
+        user = request.user
+        ingredients = (
+            RecipesIngredients.objects.filter(
+                recipe__shopping_cart__user=request.user
+            )
+            .values("ingredient__name", "ingredient__measurement_unit__name")
+            .annotate(amount=Sum("amount"))
+        )
+        print(ingredients)
+        shopping_list = "Список покупок\n\n"
+        shopping_list += "\n".join(
+            [
+                (
+                    f'- {ingredient["ingredient__name"]} '
+                    f'({ingredient["ingredient__measurement_unit__name"]})'
+                    f' - {ingredient["amount"]}'
+                )
+                for ingredient in ingredients
+            ]
+        )
+        response = FileResponse(shopping_list, content_type="txt")
+        response[
+            "Content-Disposition"
+        ] = f"attachment; filename={user.username}_shopping_list.txt"
+        return response
