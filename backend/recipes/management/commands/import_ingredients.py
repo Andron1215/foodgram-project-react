@@ -12,7 +12,8 @@ class Command(BaseCommand):
         parser.add_argument(
             "-p",
             "--path",
-            action="store_true",
+            dest="path",
+            required=True,
             help="Путь к файлу с ингридиентами",
         )
 
