@@ -16,8 +16,8 @@ services:
     image: andron12/foodgram_backend
     env_file: .env
     volumes:
-      - static:/app/static/
-      - media:/app/media/
+      - static:/static/
+      - media:/media/
     depends_on:
       - db
 
