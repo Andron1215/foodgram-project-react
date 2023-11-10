@@ -16,7 +16,7 @@ services:
     image: andron12/foodgram_backend
     env_file: .env
     volumes:
-      - static/static:/app/static/
+      - static:/app/static/
       - media:/app/media/
     depends_on:
       - db
@@ -31,8 +31,8 @@ services:
     ports:
       - "7000:80"
     volumes:
-      - static:/usr/share/nginx/html/static/
-      - media:/usr/share/nginx/html/media/
+      - static:/usr/share/nginx/html/
+      - media:/usr/share/nginx/media/
     depends_on:
       - backend
       - frontend
