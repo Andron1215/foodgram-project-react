@@ -23,8 +23,9 @@ services:
 
   frontend:
     image: andron12/foodgram_frontend
+    command: cp -r /app/build/. /static/
     volumes:
-      - static:/app/build/
+      - static:/static/
 
   gateway:
     image: andron12/foodgram_gateway
