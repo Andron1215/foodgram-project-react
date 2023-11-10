@@ -3,7 +3,7 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand
 
-from ...models import Tags
+from ...models import Tag
 
 path_tags_csv = Path(__file__).parents[4] / "data" / "tags.csv"
 
@@ -13,7 +13,7 @@ class Command(BaseCommand):
         with open(path_tags_csv, encoding="utf8") as csv_file:
             reader = csv.reader(csv_file)
             for row in reader:
-                _, created = Tags.objects.get_or_create(
+                _, created = Tag.objects.get_or_create(
                     name=row[0],
                     color=row[1],
                     slug=row[2],

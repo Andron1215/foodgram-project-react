@@ -13,14 +13,14 @@ from rest_framework.permissions import (
 from rest_framework.response import Response
 
 from recipes.models import (
-    Favorites,
-    Ingredients,
-    Recipes,
-    RecipesIngredients,
+    Favorite,
+    Ingredient,
+    Recipe,
+    RecipeIngredient,
     ShoppingCart,
-    Tags,
+    Tag,
 )
-from users.models import Subscriptions
+from users.models import Subscription
 
 from .filterts import IngredientFilter, RecipesFilter
 from .permissions import IsAuthorOrReadOnly
@@ -54,13 +54,13 @@ class CustomUserViewSet(UserViewSet):
         )
         if serializer.is_valid():
             if request.method == "POST":
-                Subscriptions.objects.create(author=author, user=user)
+                Subscription.objects.create(author=author, user=user)
                 return Response(
                     serializer.data, status=status.HTTP_201_CREATED
                 )
             if request.method == "DELETE":
                 subscription = get_object_or_404(
-                    Subscriptions, author=author, user=user
+                    Subscription, author=author, user=user
                 )
                 subscription.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
@@ -78,14 +78,14 @@ class CustomUserViewSet(UserViewSet):
 
 
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Tags.objects.all()
+    queryset = Tag.objects.all()
     serializer_class = TagsSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     pagination_class = None
 
 
 class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Ingredients.objects.all()
+    queryset = Ingredient.objects.all()
     serializer_class = IngredientsSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     pagination_class = None
@@ -94,7 +94,7 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
-    queryset = Recipes.objects.all()
+    queryset = Recipe.objects.all()
     permission_classes = [IsAuthorOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipesFilter
@@ -118,13 +118,13 @@ class RecipesViewSet(viewsets.ModelViewSet):
         )
         if serializer.is_valid():
             if request.method == "POST":
-                Favorites.objects.create(user=user, recipe=recipe)
+                Favorite.objects.create(user=user, recipe=recipe)
                 return Response(
                     serializer.data, status=status.HTTP_201_CREATED
                 )
             if request.method == "DELETE":
                 favorite = get_object_or_404(
-                    Favorites, user=user, recipe=recipe
+                    Favorite, user=user, recipe=recipe
                 )
                 favorite.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
@@ -157,7 +157,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         user = request.user
         ingredients = (
-            RecipesIngredients.objects.filter(
+            RecipeIngredient.objects.filter(
                 recipe__shopping_cart__user=request.user
             )
             .values("ingredient__name", "ingredient__measurement_unit__name")

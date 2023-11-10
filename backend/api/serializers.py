@@ -6,16 +6,16 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
 from recipes.models import (
-    Favorites,
-    Ingredients,
-    Recipes,
-    RecipesIngredients,
-    RecipesTags,
+    Favorite,
+    Ingredient,
+    Recipe,
+    RecipeIngredient,
+    RecipeTag,
     ShoppingCart,
-    Tags,
-    Units,
+    Tag,
+    Unit,
 )
-from users.models import Subscriptions
+from users.models import Subscription
 
 User = get_user_model()
 
@@ -83,7 +83,7 @@ class SubscriptionsReadSerializer(CustomUserReadSerializer):
 
 class SubscriptionsWriteSerializer(serializers.ModelSerializer):
     class Meta(CustomUserReadSerializer.Meta):
-        model = Subscriptions
+        model = Subscription
         fields = ["author", "user"]
         read_only_fields = ["author", "user"]
 
@@ -92,7 +92,7 @@ class SubscriptionsWriteSerializer(serializers.ModelSerializer):
         author = self.instance
         user = request.user
         if request.method == "POST":
-            if Subscriptions.objects.filter(author=author, user=user).exists():
+            if Subscription.objects.filter(author=author, user=user).exists():
                 raise serializers.ValidationError(
                     detail="Вы уже подписаны на этого пользователя."
                 )
@@ -101,7 +101,7 @@ class SubscriptionsWriteSerializer(serializers.ModelSerializer):
                     detail="Нельзя подписаться на самого себя."
                 )
         if request.method == "DELETE":
-            if not Subscriptions.objects.filter(
+            if not Subscription.objects.filter(
                 author=author, user=user
             ).exists():
                 raise serializers.ValidationError(
@@ -118,13 +118,13 @@ class SubscriptionsWriteSerializer(serializers.ModelSerializer):
 
 class TagsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Tags
+        model = Tag
         fields = ["id", "name", "color", "slug"]
 
 
 class UnitsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Units
+        model = Unit
         fields = ["id", "name"]
 
 
@@ -134,7 +134,7 @@ class IngredientsSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = Ingredients
+        model = Ingredient
         fields = ["id", "name", "measurement_unit"]
 
 
@@ -159,15 +159,15 @@ class RecipesIngredientsReadSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = RecipesIngredients
+        model = RecipeIngredient
         fields = ["id", "name", "measurement_unit", "amount"]
 
 
 class RecipesIngredientsWriteSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(queryset=Ingredients.objects.all())
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
 
     class Meta:
-        model = RecipesIngredients
+        model = RecipeIngredient
         fields = ["id", "amount"]
 
 
@@ -182,7 +182,7 @@ class RecipesReadSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
 
     class Meta:
-        model = Recipes
+        model = Recipe
         fields = [
             "id",
             "tags",
@@ -212,12 +212,12 @@ class RecipesReadSerializer(serializers.ModelSerializer):
 class RecipesWriteSerializer(serializers.ModelSerializer):
     ingredients = RecipesIngredientsWriteSerializer(required=True, many=True)
     tags = serializers.PrimaryKeyRelatedField(
-        queryset=Tags.objects.all(), many=True
+        queryset=Tag.objects.all(), many=True
     )
     image = Base64ImageField()
 
     class Meta:
-        model = Recipes
+        model = Recipe
         fields = [
             "id",
             "ingredients",
@@ -277,12 +277,12 @@ class RecipesWriteSerializer(serializers.ModelSerializer):
         for ingredient in ingredients:
             ingredient_instance = ingredient.get("id")
             amount = ingredient.get("amount")
-            RecipesIngredients.objects.create(
+            RecipeIngredient.objects.create(
                 recipe=instance, ingredient=ingredient_instance, amount=amount
             )
 
         for tag_instance in tags:
-            RecipesTags.objects.create(recipe=instance, tag=tag_instance)
+            RecipeTag.objects.create(recipe=instance, tag=tag_instance)
 
         instance.save()
         return instance
@@ -295,13 +295,13 @@ class RecipesWriteSerializer(serializers.ModelSerializer):
         for ingredient in ingredients:
             ingredient_instance = ingredient.get("id")
             amount = ingredient.get("amount")
-            RecipesIngredients.objects.create(
+            RecipeIngredient.objects.create(
                 recipe=instance, ingredient=ingredient_instance, amount=amount
             )
 
         instance.tags.clear()
         for tag_instance in tags:
-            RecipesTags.objects.create(recipe=instance, tag=tag_instance)
+            RecipeTag.objects.create(recipe=instance, tag=tag_instance)
 
         instance = super().update(instance, validated_data)
         instance.save()
@@ -318,7 +318,7 @@ class RecipesShortSerializer(serializers.ModelSerializer):
     image = Base64ImageField(read_only=True)
 
     class Meta:
-        model = Recipes
+        model = Recipe
         fields = [
             "id",
             "name",
@@ -341,12 +341,12 @@ class FavoritesSerializer(RecipesShortSerializer):
         user = request.user
         recipe = self.instance
         if request.method == "POST":
-            if Favorites.objects.filter(user=user, recipe=recipe).exists():
+            if Favorite.objects.filter(user=user, recipe=recipe).exists():
                 raise serializers.ValidationError(
                     detail="Рецепт уже в избранном."
                 )
         if request.method == "DELETE":
-            if not Favorites.objects.filter(user=user, recipe=recipe).exists():
+            if not Favorite.objects.filter(user=user, recipe=recipe).exists():
                 raise serializers.ValidationError(
                     detail="Рецепта нет в избранном."
                 )
