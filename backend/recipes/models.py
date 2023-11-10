@@ -55,7 +55,7 @@ class Ingredient(models.Model):
 
 class Recipe(models.Model):
     tags = models.ManyToManyField(
-        Tag, through="RecipesTags", verbose_name="Теги"
+        Tag, through="RecipeTag", verbose_name="Теги"
     )
     author = models.ForeignKey(
         User,
@@ -64,7 +64,7 @@ class Recipe(models.Model):
         verbose_name="Автор",
     )
     ingredients = models.ManyToManyField(
-        Ingredient, through="RecipesIngredients", verbose_name="Ингредиенты"
+        Ingredient, through="RecipeIngredient", verbose_name="Ингредиенты"
     )
     name = models.CharField(max_length=200, verbose_name="Название")
     image = models.ImageField(
@@ -152,7 +152,7 @@ class Favorite(models.Model):
     )
 
     class Meta:
-        contraints = [
+        constraints = [
             models.UniqueConstraint(
                 fields=["user", "recipe"], name="unique_favorite"
             )
@@ -179,7 +179,7 @@ class ShoppingCart(models.Model):
     )
 
     class Meta:
-        contraints = [
+        constraints = [
             models.UniqueConstraint(
                 fields=["user", "recipe"], name="unique_shopping_cart"
             )
