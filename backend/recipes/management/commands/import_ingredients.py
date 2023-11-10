@@ -1,16 +1,23 @@
 import csv
-from pathlib import Path
 
 from django.core.management.base import BaseCommand
 
 from ...models import Ingredients, Units
 
-path_ingredients_csv = Path(__file__).parents[4] / "data" / "ingredients.csv"
-
 
 class Command(BaseCommand):
+    help = "Импорт ингридиентов"
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "-p",
+            "--path",
+            action="store_true",
+            help="Путь к файлу с ингридиентами",
+        )
+
     def handle(self, *args, **options):
-        with open(path_ingredients_csv, encoding="utf8") as csv_file:
+        with open(options["path"], encoding="utf8") as csv_file:
             reader = csv.reader(csv_file)
             for row in reader:
                 measurement_unit, created = Units.objects.get_or_create(
