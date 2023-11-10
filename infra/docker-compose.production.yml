@@ -27,13 +27,12 @@ services:
       - static:/app/result_build/
 
   gateway:
-    image: andron12/gateway_frontend
+    image: andron12/foodgram_gateway
     ports:
       - "7000:80"
     volumes:
-      - ../docs/:/usr/share/nginx/html/api/docs/
-      - static:/var/html/static/
-      - media:/var/html/media/
+      - static:/usr/share/nginx/html/static/
+      - media:/usr/share/nginx/html/media/
     depends_on:
       - backend
       - frontend
