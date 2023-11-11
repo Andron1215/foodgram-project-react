@@ -13,62 +13,56 @@ from .models import (
 
 
 class TagAdmin(admin.ModelAdmin):
-    list_display = ["id", "name", "color", "slug"]
-    list_display_links = ["id", "name"]
-    search_fields = ["id", "name", "color", "slug"]
+    list_display = ["name", "color", "slug"]
+    search_fields = ["name", "color", "slug"]
 
 
 class UnitAdmin(admin.ModelAdmin):
-    list_display = ["id", "name"]
-    list_display_links = ["id", "name"]
-    search_fields = ["id", "name"]
+    list_display = ["name"]
+    search_fields = ["name"]
 
 
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ["id", "name", "measurement_unit"]
-    list_display_links = ["id", "name", "measurement_unit"]
-    search_fields = ["id", "name", "measurement_unit"]
-    list_filter = ["measurement_unit"]
+    list_display = ["name", "measurement_unit"]
+    search_fields = ["name", "measurement_unit"]
 
 
 class RecipeAdmin(admin.ModelAdmin):
     list_display = [
-        "id",
         "tags",
         "author",
         "ingredients",
         "name",
-        "image",
-        "text",
         "cooking_time",
+        "favorites_added",
     ]
-    list_display_links = ["id", "tags", "author", "ingredients"]
-    search_fields = ["id", "tags", "author", "ingredients", "name", "text"]
-    list_filter = ["tags", "author", "ingredients"]
+    search_fields = ["tags", "author", "ingredients", "name", "text"]
+    readonly_fields = ["favorites_added"]
+
+    def favorites_added(self, obj):
+        return obj.favorites.all().count()
+
+    favorites_added.short_description = "Количество добавлений в избранное"
 
 
 class RecipeTagAdmin(admin.ModelAdmin):
-    list_display = ["id", "recipe", "tag"]
-    list_display_links = ["id", "recipe", "tag"]
-    search_fields = ["id", "recipe", "tag"]
+    list_display = ["recipe", "tag"]
+    search_fields = ["recipe", "tag"]
 
 
 class RecipeIngredientAdmin(admin.ModelAdmin):
-    list_display = ["id", "recipe", "ingredient", "amount"]
-    list_display_links = ["id", "recipe", "ingredient"]
-    search_fields = ["id", "recipe", "ingredient"]
+    list_display = ["recipe", "ingredient", "amount"]
+    search_fields = ["recipe", "ingredient"]
 
 
 class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ["id", "recipe", "user"]
-    list_display_links = ["id", "recipe", "user"]
-    search_fields = ["id", "recipe", "user"]
+    list_display = ["recipe", "user"]
+    search_fields = ["recipe", "user"]
 
 
 class ShoppingCartAdmin(admin.ModelAdmin):
-    list_display = ["id", "recipe", "user"]
-    list_display_links = ["id", "recipe", "user"]
-    search_fields = ["id", "recipe", "user"]
+    list_display = ["recipe", "user"]
+    search_fields = ["recipe", "user"]
 
 
 admin.site.register(Tag, TagAdmin)
