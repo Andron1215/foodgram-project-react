@@ -10,7 +10,6 @@ class SubscribeAdmin(admin.ModelAdmin):
     search_fields = ["id", "author", "user"]
     filter_horizontal = ["user"]
     filter_vertical = ["author"]
-    list_filter = ["author", "user"]
 
 
 admin.site.register(User, UserAdmin)
