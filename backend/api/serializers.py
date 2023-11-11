@@ -51,6 +51,7 @@ class SubscriptionsSerializer(CustomUserSerializer):
             "recipes",
             "recipes_count",
         ]
+        read_only_fields = ["email", "username", "first_name", "last_name"]
 
     def validate(self, data):
         request = self.context.get("request")
