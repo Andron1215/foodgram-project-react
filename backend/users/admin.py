@@ -7,7 +7,7 @@ from .models import Subscription, User
 class SubscribeAdmin(admin.ModelAdmin):
     list_display = ["id", "author", "user"]
     list_display_links = ["id", "user", "author"]
-    search_fields = ["user", "author"]
+    search_fields = ["id", "user", "author"]
 
 
 admin.site.register(User, UserAdmin)
