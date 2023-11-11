@@ -23,6 +23,7 @@ from recipes.models import (
 from users.models import Subscription
 
 from .filterts import IngredientFilter, RecipesFilter
+from .pagination import CustomPageNumberPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     CustomUserSerializer,
@@ -43,6 +44,7 @@ class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    pagination_class = CustomPageNumberPagination
 
     @action(
         ["post", "delete"], detail=True, permission_classes=[IsAuthenticated]
@@ -82,14 +84,12 @@ class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagsSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
-    pagination_class = None
 
 
 class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientsSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
-    pagination_class = None
     filter_backends = [DjangoFilterBackend]
     filterset_class = IngredientFilter
 
@@ -97,6 +97,7 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = [IsAuthorOrReadOnly]
+    pagination_class = CustomPageNumberPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipesFilter
 
