@@ -1,16 +1,24 @@
 import csv
-from pathlib import Path
 
 from django.core.management.base import BaseCommand
 
 from ...models import Tag
 
-path_tags_csv = Path(__file__).parents[4] / "data" / "tags.csv"
-
 
 class Command(BaseCommand):
+    help = "Импорт тегов"
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "-p",
+            "--path",
+            dest="path",
+            required=True,
+            help="Путь к файлу с тегами",
+        )
+
     def handle(self, *args, **options):
-        with open(path_tags_csv, encoding="utf8") as csv_file:
+        with open(options["path"], encoding="utf8") as csv_file:
             reader = csv.reader(csv_file)
             for row in reader:
                 _, created = Tag.objects.get_or_create(
