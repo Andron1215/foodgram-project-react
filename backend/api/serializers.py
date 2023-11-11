@@ -66,19 +66,17 @@ class SubscriptionsReadSerializer(CustomUserReadSerializer):
             "recipes_count",
         ]
 
-    def get_recipes(self, user):
-        print(user.recipes.all())
+    def get_recipes(self, author):
         request = self.context.get("request")
-        print(request)
         recipes_limit = request.GET.get("recipes_limit")
-        recipes = user.recipes.all()
+        recipes = author.recipes.all()
         if recipes_limit:
             recipes = recipes[: int(recipes_limit)]
         serializer = RecipesShortSerializer(recipes, many=True)
         return serializer.data
 
-    def get_recipes_count(self, user):
-        return user.recipes.count()
+    def get_recipes_count(self, author):
+        return author.recipes.count()
 
 
 class SubscriptionsWriteSerializer(serializers.ModelSerializer):
