@@ -42,6 +42,7 @@ User = get_user_model()
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserReadSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     @action(
         ["post", "delete"], detail=True, permission_classes=[IsAuthenticated]
