@@ -25,7 +25,7 @@ from users.models import Subscription
 from .filterts import IngredientFilter, RecipesFilter
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
-    CustomUserReadSerializer,
+    CustomUserSerializer,
     FavoritesSerializer,
     IngredientsSerializer,
     RecipesReadSerializer,
@@ -41,7 +41,7 @@ User = get_user_model()
 
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
-    serializer_class = CustomUserReadSerializer
+    serializer_class = CustomUserSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     @action(

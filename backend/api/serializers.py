@@ -2,7 +2,7 @@ import base64
 
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
-from djoser.serializers import UserCreateSerializer, UserSerializer
+from djoser.serializers import UserSerializer
 from rest_framework import serializers
 
 from recipes.models import (
@@ -20,8 +20,8 @@ from users.models import Subscription
 User = get_user_model()
 
 
-class CustomUserReadSerializer(UserSerializer):
-    is_subscribed = serializers.SerializerMethodField()
+class CustomUserSerializer(UserSerializer):
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
@@ -33,7 +33,6 @@ class CustomUserReadSerializer(UserSerializer):
             "last_name",
             "is_subscribed",
         ]
-        read_only_fields = ["email", "username"]
 
     def get_is_subscribed(self, author):
         user = self.context.get("request").user
@@ -42,26 +41,13 @@ class CustomUserReadSerializer(UserSerializer):
         return user.subscriptions.filter(author=author).exists()
 
 
-class CustomUserWriteSerializer(UserCreateSerializer):
-    class Meta:
-        model = User
-        fields = [
-            "id",
-            "email",
-            "username",
-            "first_name",
-            "last_name",
-            "password",
-        ]
-
-
-class SubscriptionsReadSerializer(CustomUserReadSerializer):
+class SubscriptionsReadSerializer(CustomUserSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
-    class Meta(CustomUserReadSerializer.Meta):
+    class Meta(CustomUserSerializer.Meta):
         fields = [
-            *CustomUserReadSerializer.Meta.fields,
+            *CustomUserSerializer.Meta.fields,
             "recipes",
             "recipes_count",
         ]
@@ -80,7 +66,7 @@ class SubscriptionsReadSerializer(CustomUserReadSerializer):
 
 
 class SubscriptionsWriteSerializer(serializers.ModelSerializer):
-    class Meta(CustomUserReadSerializer.Meta):
+    class Meta(CustomUserSerializer.Meta):
         model = Subscription
         fields = ["author", "user"]
         read_only_fields = ["author", "user"]
@@ -171,7 +157,7 @@ class RecipesIngredientsWriteSerializer(serializers.ModelSerializer):
 
 class RecipesReadSerializer(serializers.ModelSerializer):
     tags = TagsSerializer(many=True)
-    author = CustomUserReadSerializer(read_only=True)
+    author = CustomUserSerializer(read_only=True)
     ingredients = RecipesIngredientsReadSerializer(
         source="recipe_ingredients", many=True
     )
