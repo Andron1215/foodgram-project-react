@@ -32,8 +32,7 @@ from .serializers import (
     RecipesReadSerializer,
     RecipesWriteSerializer,
     ShoppingCartSerializer,
-    SubscriptionsReadSerializer,
-    SubscriptionsWriteSerializer,
+    SubscriptionsSerializer,
     TagsSerializer,
 )
 
@@ -52,7 +51,7 @@ class CustomUserViewSet(UserViewSet):
     def subscribe(self, request, id=None):
         author = self.get_object()
         user = request.user
-        serializer = SubscriptionsWriteSerializer(
+        serializer = SubscriptionsSerializer(
             author, data=request.data, context={"request": request}
         )
         if serializer.is_valid():
@@ -74,7 +73,7 @@ class CustomUserViewSet(UserViewSet):
         user = request.user
         queryset = User.objects.filter(subscribers__user=user)
         pages = self.paginate_queryset(queryset)
-        serializer = SubscriptionsReadSerializer(
+        serializer = SubscriptionsSerializer(
             pages, many=True, context={"request": request}
         )
         return self.get_paginated_response(serializer.data)

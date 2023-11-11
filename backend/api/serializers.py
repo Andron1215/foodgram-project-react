@@ -41,7 +41,7 @@ class CustomUserSerializer(UserSerializer):
         return user.subscriptions.filter(author=author).exists()
 
 
-class SubscriptionsReadSerializer(CustomUserSerializer):
+class SubscriptionsSerializer(CustomUserSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
@@ -51,6 +51,28 @@ class SubscriptionsReadSerializer(CustomUserSerializer):
             "recipes",
             "recipes_count",
         ]
+
+    def validate(self, data):
+        request = self.context.get("request")
+        author = self.instance
+        user = request.user
+        if request.method == "POST":
+            if author == user:
+                raise serializers.ValidationError(
+                    detail="Нельзя подписаться на самого себя."
+                )
+            if Subscription.objects.filter(author=author, user=user).exists():
+                raise serializers.ValidationError(
+                    detail="Вы уже подписаны на этого пользователя."
+                )
+        if request.method == "DELETE":
+            if not Subscription.objects.filter(
+                author=author, user=user
+            ).exists():
+                raise serializers.ValidationError(
+                    detail="Вы не подписаны на этого пользователя."
+                )
+        return data
 
     def get_recipes(self, author):
         request = self.context.get("request")
@@ -63,41 +85,6 @@ class SubscriptionsReadSerializer(CustomUserSerializer):
 
     def get_recipes_count(self, author):
         return author.recipes.count()
-
-
-class SubscriptionsWriteSerializer(serializers.ModelSerializer):
-    class Meta(CustomUserSerializer.Meta):
-        model = Subscription
-        fields = ["author", "user"]
-        read_only_fields = ["author", "user"]
-
-    def validate(self, data):
-        request = self.context.get("request")
-        author = self.instance
-        user = request.user
-        if request.method == "POST":
-            if Subscription.objects.filter(author=author, user=user).exists():
-                raise serializers.ValidationError(
-                    detail="Вы уже подписаны на этого пользователя."
-                )
-            if author == user:
-                raise serializers.ValidationError(
-                    detail="Нельзя подписаться на самого себя."
-                )
-        if request.method == "DELETE":
-            if not Subscription.objects.filter(
-                author=author, user=user
-            ).exists():
-                raise serializers.ValidationError(
-                    detail="Вы не подписаны на этого пользователя."
-                )
-        return data
-
-    def to_representation(self, instance):
-        serializer = SubscriptionsReadSerializer(
-            instance, context={"request": self.context.get("request")}
-        )
-        return serializer.data
 
 
 class TagsSerializer(serializers.ModelSerializer):
