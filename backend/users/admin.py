@@ -6,8 +6,11 @@ from .models import Subscription, User
 
 class SubscribeAdmin(admin.ModelAdmin):
     list_display = ["id", "author", "user"]
-    list_display_links = ["id", "user", "author"]
-    search_fields = ["id", "user", "author"]
+    list_display_links = ["id"]
+    search_fields = ["id", "author", "user"]
+    filter_horizontal = ["user"]
+    filter_vertical = ["author"]
+    list_filter = ["author", "user"]
 
 
 admin.site.register(User, UserAdmin)
