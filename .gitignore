@@ -130,3 +130,7 @@ dmypy.json
 
 # .idea
 .idea
+pyproject.toml
+foodgram-project-react.code-workspace
+media
+.vscode
