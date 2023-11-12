@@ -29,14 +29,13 @@ class IngredientAdmin(admin.ModelAdmin):
 
 class RecipeAdmin(admin.ModelAdmin):
     list_display = [
-        "tags",
         "author",
-        "ingredients",
         "name",
         "cooking_time",
         "favorites_added",
     ]
-    search_fields = ["tags", "author", "ingredients", "name", "text"]
+    search_fields = ["author", "name", "text"]
+    list_filter = ["tags__name", "ingredients__name"]
     readonly_fields = ["favorites_added"]
 
     def favorites_added(self, obj):
