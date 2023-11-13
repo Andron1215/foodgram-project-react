@@ -2,7 +2,7 @@ import csv
 
 from django.core.management.base import BaseCommand
 
-from ...models import Tag
+from recipes.models import Tag
 
 
 class Command(BaseCommand):
@@ -21,10 +21,11 @@ class Command(BaseCommand):
         with open(options["path"], encoding="utf8") as csv_file:
             reader = csv.reader(csv_file)
             for row in reader:
+                name, color, slug = row
                 _, created = Tag.objects.get_or_create(
-                    name=row[0],
-                    color=row[1],
-                    slug=row[2],
+                    name=name,
+                    color=color,
+                    slug=slug,
                 )
 
         self.stdout.write(self.style.SUCCESS("Теги успешно импортированы."))

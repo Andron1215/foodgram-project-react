@@ -8,3 +8,4 @@ Pillow==9.0.0
 PyYAML==6.0
 python-dotenv
 gunicorn==20.1.0
+django-colorfield==0.10.1
