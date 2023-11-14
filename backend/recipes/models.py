@@ -10,7 +10,7 @@ User = get_user_model()
 
 class Tag(models.Model):
     name = models.CharField(
-        max_length=RecipesModels.max_len_tag_name.value,
+        max_length=RecipesModels.MAX_LEN_TAG_NAME.value,
         unique=True,
         verbose_name="Название",
     )
@@ -27,7 +27,7 @@ class Tag(models.Model):
 
 class Unit(models.Model):
     name = models.CharField(
-        max_length=RecipesModels.max_len_unit_name.value,
+        max_length=RecipesModels.MAX_LEN_UNIT_NAME.value,
         unique=True,
         verbose_name="Название",
     )
@@ -42,7 +42,7 @@ class Unit(models.Model):
 
 class Ingredient(models.Model):
     name = models.CharField(
-        max_length=RecipesModels.max_len_ingredient_name.value,
+        max_length=RecipesModels.MAX_LEN_INGREDIENT_NAME.value,
         verbose_name="Название",
     )
     measurement_unit = models.ForeignKey(
@@ -80,7 +80,7 @@ class Recipe(models.Model):
         Ingredient, through="RecipeIngredient", verbose_name="Ингредиенты"
     )
     name = models.CharField(
-        max_length=RecipesModels.max_len_recipe_name.value,
+        max_length=RecipesModels.MAX_LEN_RECIPE_NAME.value,
         verbose_name="Название",
     )
     image = models.ImageField(
@@ -90,17 +90,17 @@ class Recipe(models.Model):
     cooking_time = models.PositiveSmallIntegerField(
         validators=[
             MinValueValidator(
-                RecipesModels.min_pos_int.value,
+                RecipesModels.MIN_POS_INT.value,
                 (
                     "Время приготовления не может быть меньше "
-                    f"{RecipesModels.min_pos_int.value} минуты."
+                    f"{RecipesModels.MIN_POS_INT.value} минуты."
                 ),
             ),
             MaxValueValidator(
-                RecipesModels.max_cooking_time.value,
+                RecipesModels.MAX_COOKING_TIME.value,
                 (
                     "Время приготовления не может быть больше "
-                    f"{RecipesModels.max_cooking_time.value} минут."
+                    f"{RecipesModels.MAX_COOKING_TIME.value} минут."
                 ),
             ),
         ],
@@ -148,10 +148,10 @@ class RecipeIngredient(models.Model):
     amount = models.PositiveSmallIntegerField(
         validators=[
             MinValueValidator(
-                RecipesModels.min_pos_int.value,
+                RecipesModels.MIN_POS_INT.value,
                 (
                     "Количество не может быть меньше "
-                    f"{RecipesModels.min_pos_int.value}."
+                    f"{RecipesModels.MIN_POS_INT.value}."
                 ),
             )
         ],

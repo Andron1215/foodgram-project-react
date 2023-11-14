@@ -7,10 +7,10 @@ from constants import UsersModels
 
 class User(AbstractUser):
     first_name = models.CharField(
-        _("first name"), max_length=UsersModels.max_len_user_first_name.value
+        _("first name"), max_length=UsersModels.MAX_LEN_USER_FIRST_NAME.value
     )
     last_name = models.CharField(
-        _("last name"), max_length=UsersModels.max_len_user_last_name.value
+        _("last name"), max_length=UsersModels.MAX_LEN_USER_LAST_NAME.value
     )
     email = models.EmailField(_("email address"), unique=True)
 
@@ -50,4 +50,4 @@ class Subscription(models.Model):
         verbose_name_plural = "Подписки"
 
     def __str__(self):
-        return f"{self.subscriber} подписан на {self.user}"
+        return f"{self.author} подписан на {self.user}"

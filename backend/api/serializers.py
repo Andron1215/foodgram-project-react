@@ -56,9 +56,9 @@ class SubscriptionsSerializer(CustomUserSerializer):
 
     def validate(self, data):
         request = self.context.get("request")
-        author = self.instance
         user = request.user
         if request.method == "POST":
+            author = self.context.get("author")
             if author == user:
                 raise serializers.ValidationError(
                     detail="Нельзя подписаться на самого себя."
@@ -68,6 +68,7 @@ class SubscriptionsSerializer(CustomUserSerializer):
                     detail="Вы уже подписаны на этого пользователя."
                 )
         if request.method == "DELETE":
+            author = self.instance
             if not Subscription.objects.filter(
                 author=author, user=user
             ).exists():
@@ -76,7 +77,11 @@ class SubscriptionsSerializer(CustomUserSerializer):
                 )
         return data
 
+    def create(self, validated_data):
+        return Subscription.objects.create(**validated_data).author
+
     def get_recipes(self, author):
+        print(author)
         request = self.context.get("request")
         recipes_limit = request.GET.get("recipes_limit")
         recipes = author.recipes.all()
@@ -188,6 +193,10 @@ class RecipesWriteSerializer(serializers.ModelSerializer):
         queryset=Tag.objects.all(), many=True
     )
     image = Base64ImageField()
+    cooking_time = serializers.IntegerField(
+        min_value=RecipesModels.MIN_POS_INT.value,
+        max_value=RecipesModels.MAX_COOKING_TIME.value,
+    )
 
     class Meta:
         model = Recipe
@@ -234,27 +243,6 @@ class RecipesWriteSerializer(serializers.ModelSerializer):
         if len(value) != len(tags_set):
             raise serializers.ValidationError(
                 {"tags": "Теги не должны повторяться."}
-            )
-        return value
-
-    def validate_cooking_time(self, value):
-        if int(value) < RecipesModels.min_pos_int.value:
-            raise serializers.ValidationError(
-                {
-                    "cooking_time": (
-                        "Время приготовления не может быть меньше "
-                        f"{RecipesModels.min_pos_int.value} минуты."
-                    )
-                }
-            )
-        if int(value) > RecipesModels.max_cooking_time.value:
-            raise serializers.ValidationError(
-                {
-                    "cooking_time": (
-                        "Время приготовления не может быть больше "
-                        f"{RecipesModels.max_cooking_time.value} минут."
-                    )
-                }
             )
         return value
 
@@ -338,18 +326,22 @@ class FavoritesSerializer(RecipesShortSerializer):
     def validate(self, data):
         request = self.context.get("request")
         user = request.user
-        recipe = self.instance
         if request.method == "POST":
+            recipe = self.context.get("recipe")
             if Favorite.objects.filter(user=user, recipe=recipe).exists():
                 raise serializers.ValidationError(
                     detail="Рецепт уже в избранном."
                 )
         if request.method == "DELETE":
+            recipe = self.instance
             if not Favorite.objects.filter(user=user, recipe=recipe).exists():
                 raise serializers.ValidationError(
                     detail="Рецепта нет в избранном."
                 )
         return data
+
+    def create(self, validated_data):
+        return Favorite.objects.create(**validated_data).recipe
 
 
 class ShoppingCartSerializer(RecipesShortSerializer):
@@ -359,13 +351,14 @@ class ShoppingCartSerializer(RecipesShortSerializer):
     def validate(self, data):
         request = self.context.get("request")
         user = request.user
-        recipe = self.instance
         if request.method == "POST":
+            recipe = self.context.get("recipe")
             if ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
                 raise serializers.ValidationError(
                     detail="Рецепт уже в списке покупок."
                 )
         if request.method == "DELETE":
+            recipe = self.instance
             if not ShoppingCart.objects.filter(
                 user=user, recipe=recipe
             ).exists():
@@ -373,3 +366,6 @@ class ShoppingCartSerializer(RecipesShortSerializer):
                     detail="Рецепта нет в списке покупок."
                 )
         return data
+
+    def create(self, validated_data):
+        return ShoppingCart.objects.create(**validated_data).recipe
