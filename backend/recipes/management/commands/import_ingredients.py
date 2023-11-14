@@ -19,19 +19,25 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with open(options["path"], encoding="utf8") as csv_file:
-            reader = csv.reader(csv_file)
-            ingredients = []
-            for row in reader:
-                ingredient_name, unit_name = row
-                measurement_unit, created = Unit.objects.get_or_create(
-                    name=unit_name,
-                )
-                ingredients.append(
+            reader = list(csv.reader(csv_file))
+            Unit.objects.bulk_create(
+                [
+                    Unit(name=unit_name)
+                    for unit_name in {unit_name for _, unit_name in reader}
+                ],
+                ignore_conflicts=True,
+            )
+            unit_instances = Unit.objects.all()
+            unit_name_id = {unit.name: unit for unit in unit_instances}
+            Ingredient.objects.bulk_create(
+                [
                     Ingredient(
-                        name=ingredient_name, measurement_unit=measurement_unit
+                        name=ingredient_name,
+                        measurement_unit=unit_name_id[unit_name],
                     )
-                )
-            Ingredient.objects.bulk_create(ingredients, ignore_conflicts=True)
+                    for ingredient_name, unit_name in reader
+                ]
+            )
 
         self.stdout.write(
             self.style.SUCCESS("Ингридиенты успешно импортированы.")

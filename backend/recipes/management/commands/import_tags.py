@@ -20,12 +20,15 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         with open(options["path"], encoding="utf8") as csv_file:
             reader = csv.reader(csv_file)
-            for row in reader:
-                name, color, slug = row
-                _, created = Tag.objects.get_or_create(
-                    name=name,
-                    color=color,
-                    slug=slug,
-                )
+            Tag.objects.bulk_create(
+                [
+                    Tag(
+                        name=name,
+                        color=color,
+                        slug=slug,
+                    )
+                    for name, color, slug in reader
+                ]
+            )
 
         self.stdout.write(self.style.SUCCESS("Теги успешно импортированы."))

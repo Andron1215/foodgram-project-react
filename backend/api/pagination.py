@@ -5,4 +5,4 @@ from constants import Pagination
 
 class CustomPageNumberPagination(PageNumberPagination):
     page_size_query_param = "limit"
-    page_size = Pagination.page_size.value
+    page_size = Pagination.PAGE_SIZE.value
