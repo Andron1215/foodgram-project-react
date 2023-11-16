@@ -1,8 +1,12 @@
 # Foodgram
 
-[![Main Kittygram workflow](https://github.com/Andron1215/kittygram_final/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/Andron1215/kittygram_final/actions/workflows/main.yml)
+[![Main Foodgram workflow](https://github.com/Andron1215/foodgram-project-react/blob/master/.github/workflows/main.yml/badge.svg?branch=master)](https://github.com/Andron1215/foodgram-project-react/blob/master/.github/workflows/main.yml)
 
 Foodgram — сайт, на котором можно поделиться своими рецептами и посмотреть рецепты других пользователей.
+
+Адрес сервера: 158.160.75.31:7000
+Логин: admin@a.ru
+Пароль: admin
 
 ## Технологии
 
@@ -68,8 +72,30 @@ sudo docker compose -f docker-compose.production.yml exec backend mkdir -p /stat
 sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/static/. /static/static/
 ```
 
+### Запуск проекта с файлов репозитория
+
+1) Клонируйте репозиторий:
+```
+git clone https://github.com/Andron1215/foodgram-project-react.git
+```
+2) Запустите проект:
+```
+sudo docker compose -f docker-compose.yml down
+sudo docker compose -f docker-compose.yml up -d
+```
+3) Сделайте миграцию для базы данных:
+```
+sudo docker compose -f docker-compose.yml exec backend python manage.py migrate
+```
+4) Соберите статику и копируйте в каталог со статикой:
+```
+sudo docker compose -f docker-compose.yml exec backend python manage.py collectstatic
+sudo docker compose -f docker-compose.yml exec backend mkdir -p /static/static/
+sudo docker compose -f docker-compose.yml exec backend cp -r /app/static/. /static/static/
+```
+
 ## Авторы
 
-- Backend: Yandex Praktikum Team
+- Backend: Богидаев Андрей
 - Frontend: Yandex Praktikum Team
 - DevOps: Богидаев Андрей
