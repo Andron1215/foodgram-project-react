@@ -1,12 +1,12 @@
 # Foodgram
 
-[![Main Foodgram workflow](https://github.com/Andron1215/foodgram-project-react/blob/master/.github/workflows/main.yml/badge.svg?branch=master)](https://github.com/Andron1215/foodgram-project-react/blob/master/.github/workflows/main.yml)
+[![Main Foodgram workflow](https://github.com/Andron1215/foodgram-project-react/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/Andron1215/foodgram-project-react/actions/workflows/main.yml)
 
 Foodgram — сайт, на котором можно поделиться своими рецептами и посмотреть рецепты других пользователей.
 
-Адрес сервера: 158.160.75.31:7000
-Логин: admin@a.ru
-Пароль: admin
+- Адрес сервера: 158.160.75.31:7000
+- Логин: admin@a.ru
+- Пароль: admin
 
 ## Технологии
 
