@@ -2,7 +2,7 @@
 
 [![Main Foodgram workflow](https://github.com/Andron1215/foodgram-project-react/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/Andron1215/foodgram-project-react/actions/workflows/main.yml)
 
-Foodgram — сайт, на котором можно поделиться своими рецептами и посмотреть рецепты других пользователей.
+Foodgram — онлайн-сервис для обмена кулинарными рецептами и нахождения новых кулинарных идей.
 
 ## Технологии
 
